@@ -1,48 +1,66 @@
-"use client";
+"use client"
 
 import { useState, useEffect } from "react";
-
 import TrailCard from "./TrailCard";
 
 const TrailCardList = ({ data, handleTagClick }) => {
   return (
     <div className='mt-16 trail_layout'>
       {data.length > 0 ? (
-          data.map((post) => (
-            <TrailCard
-              key={post._id}
-              post={post}
-              handleTagClick={handleTagClick}
-            />
-          ))
-        ) : (
-          <p>No trails found. Start by creating a new trail!</p>
-        )}
+        data.map((post) => (
+          <TrailCard
+            key={post._id}
+            post={post}
+            handleTagClick={handleTagClick}
+          />
+        ))
+      ) : (
+        <p>No trails found. Start by creating a new trail!</p>
+      )}
     </div>
   );
 };
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
-
-  // Search states
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchPosts = async () => {
-    const response = await fetch("/api/trail");
-    const data = await response.json();
-
-    setAllPosts(data);
+    setLoading(true);
+    try {
+      const response = await fetch("/api/trail", { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error('Failed to fetch trails');
+      }
+      const data = await response.json();
+      setAllPosts(data);
+    } catch (error) {
+      console.error("Error fetching trails:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchPosts();
   }, []);
 
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchPosts();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
   const filterTrails = (searchtext) => {
-    const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search
+    const regex = new RegExp(searchtext, "i");
     return allPosts.filter(
       (item) =>
         regex.test(item.creator.username) ||
@@ -56,7 +74,6 @@ const Feed = () => {
     clearTimeout(searchTimeout);
     setSearchText(e.target.value);
 
-    // debounce method
     setSearchTimeout(
       setTimeout(() => {
         const searchResult = filterTrails(e.target.value);
@@ -67,10 +84,13 @@ const Feed = () => {
 
   const handleTagClick = (tagName) => {
     setSearchText(tagName);
-
     const searchResult = filterTrails(tagName);
     setSearchedResults(searchResult);
   };
+
+  if (loading) {
+    return <div>Loading trails...</div>;
+  }
 
   return (
     <section className='feed'>
@@ -85,7 +105,6 @@ const Feed = () => {
         />
       </form>
 
-      {/* All Trails */}
       {searchText ? (
         <TrailCardList
           data={searchedResults}
