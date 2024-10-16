@@ -5,10 +5,25 @@ export const GET = async (request) => {
     try {
         await connectToDB();
 
-        const trails = await Trail.find({}).populate('creator')
+        // Add a cache-busting query parameter
+        const { searchParams } = new URL(request.url);
+        const timestamp = searchParams.get('t');
 
-        return new Response(JSON.stringify(trails), { status: 200 })
+        // Fetch trails and sort by creation date in descending order
+        const trails = await Trail.find({})
+            .sort({ createdAt: -1 })
+            .populate('creator');
+
+        // Add a custom header to indicate when the data was fetched
+        const headers = new Headers();
+        headers.append('X-Data-Timestamp', new Date().toISOString());
+
+        return new Response(JSON.stringify(trails), { 
+            status: 200, 
+            headers 
+        });
     } catch (error) {
-        return new Response("Failed to fetch the trails", { status: 500 })
+        console.error("Error fetching trails:", error);
+        return new Response("Failed to fetch the trails", { status: 500 });
     }
 }
