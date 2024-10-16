@@ -1,56 +1,48 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+
 import TrailCard from "./TrailCard";
 
 const TrailCardList = ({ data, handleTagClick }) => {
   return (
     <div className='mt-16 trail_layout'>
-      {data.map((post) => (
-        <TrailCard
-          key={post._id}
-          post={post}
-          handleTagClick={handleTagClick}
-        />
-      ))}
+      {data.length > 0 ? (
+          data.map((post) => (
+            <TrailCard
+              key={post._id}
+              post={post}
+              handleTagClick={handleTagClick}
+            />
+          ))
+        ) : (
+          <p>No trails found. Start by creating a new trail!</p>
+        )}
     </div>
   );
 };
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
+
+  // Search states
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchPosts = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/trail?t=${Date.now()}`, {
-        cache: 'no-store'
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch trails');
-      }
-      const data = await response.json();
-      setAllPosts(data);
-    } catch (error) {
-      console.error("Error fetching trails:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const fetchPosts = async () => {
+    const response = await fetch("/api/trail");
+    const data = await response.json();
+
+    setAllPosts(data);
+  };
 
   useEffect(() => {
     fetchPosts();
-    // Set up polling to fetch new data every 30 seconds
-    const intervalId = setInterval(fetchPosts, 30000);
-    return () => clearInterval(intervalId);
-  }, [fetchPosts]);
+  }, []);
 
-  const filterTrails = useCallback((searchtext) => {
-    const regex = new RegExp(searchtext, "i");
+  const filterTrails = (searchtext) => {
+    const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search
     return allPosts.filter(
       (item) =>
         regex.test(item.creator.username) ||
@@ -58,12 +50,13 @@ const Feed = () => {
         regex.test(item.name) ||
         regex.test(item.location)
     );
-  }, [allPosts]);
+  };
 
   const handleSearchChange = (e) => {
     clearTimeout(searchTimeout);
     setSearchText(e.target.value);
 
+    // debounce method
     setSearchTimeout(
       setTimeout(() => {
         const searchResult = filterTrails(e.target.value);
@@ -74,6 +67,7 @@ const Feed = () => {
 
   const handleTagClick = (tagName) => {
     setSearchText(tagName);
+
     const searchResult = filterTrails(tagName);
     setSearchedResults(searchResult);
   };
@@ -91,9 +85,8 @@ const Feed = () => {
         />
       </form>
 
-      {isLoading ? (
-        <p>Loading trails...</p>
-      ) : searchText ? (
+      {/* All Trails */}
+      {searchText ? (
         <TrailCardList
           data={searchedResults}
           handleTagClick={handleTagClick}
@@ -101,10 +94,6 @@ const Feed = () => {
       ) : (
         <TrailCardList data={allPosts} handleTagClick={handleTagClick} />
       )}
-
-      <button onClick={fetchPosts} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
-        Refresh Trails
-      </button>
     </section>
   );
 };
