@@ -42,7 +42,7 @@ const Feed = () => {
         }
         const data = await response.json();
         console.log("Fetched trails:", data); // Log fetched data
-        setAllPosts(data);
+        setAllPosts(data.trails);
       } catch (error) {
         console.error("Error fetching trails:", error);
       } finally {
