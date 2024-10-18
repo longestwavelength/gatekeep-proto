@@ -1,6 +1,15 @@
+"use client"
+
+import { useState, useEffect } from "react";
 import Feed from "@components/Feed";
 
 const Home = () => {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
     return (
         <section className="w-full flex-center flex-col">
             <h1 className="head_text text-center">
@@ -12,7 +21,7 @@ const Home = () => {
                 Gatekeep is for finding, creating new trails & sharing trails with your friends.
             </p>
             
-            <Feed />
+            {isClient && <Feed />}
         </section>
     )
 }
