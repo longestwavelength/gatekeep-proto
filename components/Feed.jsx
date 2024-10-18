@@ -28,34 +28,36 @@ const Feed = () => {
   const [searchedResults, setSearchedResults] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPosts = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/trail", { cache: 'no-store' });
-      if (!response.ok) {
-        throw new Error('Failed to fetch trails');
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("/api/trail", { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error('Failed to fetch trails');
+        }
+        const data = await response.json();
+        setAllPosts(data);
+      } catch (error) {
+        console.error("Error fetching trails:", error);
+      } finally {
+        setLoading(false);
       }
-      const data = await response.json();
-      setAllPosts(data);
-    } catch (error) {
-      console.error("Error fetching trails:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  useEffect(() => {
-    const handleFocus = () => {
-      fetchPosts();
     };
 
-    window.addEventListener('focus', handleFocus);
+    fetchPosts();
+
+    // Refetch when the component gains focus
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchPosts();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
-      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
