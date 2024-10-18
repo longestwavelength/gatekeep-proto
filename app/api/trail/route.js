@@ -6,7 +6,7 @@ export const GET = async (request) => {
         await connectToDB();
 
         const trails = await Trail.find({}).populate('creator')
-
+        console.log("API: Fetched trails", trails.length);
         return new Response(JSON.stringify(trails), { 
             status: 200,
             headers: {
@@ -14,6 +14,7 @@ export const GET = async (request) => {
             },
         })
     } catch (error) {
+        console.error("API: Error fetching trails", error);
         return new Response("Failed to fetch the trails", { status: 500 })
     }
 }
