@@ -33,7 +33,7 @@ const Feed = () => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/trail?t=${timestamp}`, { 
+        const response = await fetch(`/api/trail`, { 
           cache: 'no-store',
           headers: {
             'Cache-Control': 'no-cache',
