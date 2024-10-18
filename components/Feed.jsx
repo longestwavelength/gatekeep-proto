@@ -33,7 +33,14 @@ const Feed = () => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/trail`, { cache: 'no-store' });
+        const response = await fetch(`/api/trail?t=${timestamp}`, { 
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }  
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch trails');
         }
