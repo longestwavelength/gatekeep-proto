@@ -6,17 +6,13 @@ import TrailCard from "./TrailCard";
 const TrailCardList = ({ data, handleTagClick }) => {
   return (
     <div className='mt-16 trail_layout'>
-      {data.length > 0 ? (
-        data.map((post) => (
+       { data.map((post) => (
           <TrailCard
             key={post._id}
             post={post}
             handleTagClick={handleTagClick}
           />
-        ))
-      ) : (
-        <p>No trails found. Start by creating a new trail!</p>
-      )}
+        ))}
     </div>
   );
 };
