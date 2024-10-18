@@ -33,11 +33,12 @@ const Feed = () => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/trail", { cache: 'no-store' });
+        const response = await fetch(`/api/trail`, { cache: 'no-store' });
         if (!response.ok) {
           throw new Error('Failed to fetch trails');
         }
         const data = await response.json();
+        //console.log("Fetched trails:", data); // Log fetched data
         setAllPosts(data);
       } catch (error) {
         console.error("Error fetching trails:", error);
@@ -60,6 +61,20 @@ const Feed = () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+
+ /*
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const response = await fetch("/api/trail", { cache: 'no-store' });
+      const data = await response.json();
+      console.log("Fetched trails:", data); // Log fetched data
+      setAllPosts(data);
+    }
+
+    fetchPosts();
+  }, [])
+ */
 
   const filterTrails = (searchtext) => {
     const regex = new RegExp(searchtext, "i");
