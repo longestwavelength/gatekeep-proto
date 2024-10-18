@@ -28,7 +28,7 @@ const Feed = () => {
   const [searchedResults, setSearchedResults] = useState([]);
   const [loading, setLoading] = useState(true);
 
-
+/*
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
@@ -38,7 +38,7 @@ const Feed = () => {
           throw new Error('Failed to fetch trails');
         }
         const data = await response.json();
-        //console.log("Fetched trails:", data); // Log fetched data
+        console.log("Fetched trails:", data); // Log fetched data
         setAllPosts(data);
       } catch (error) {
         console.error("Error fetching trails:", error);
@@ -61,9 +61,9 @@ const Feed = () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+*/
 
-
- /*
+ 
   useEffect(() => {
     const fetchPosts = async () => {
       const response = await fetch("/api/trail", { cache: 'no-store' });
@@ -74,7 +74,7 @@ const Feed = () => {
 
     fetchPosts();
   }, [])
- */
+ 
 
   const filterTrails = (searchtext) => {
     const regex = new RegExp(searchtext, "i");
