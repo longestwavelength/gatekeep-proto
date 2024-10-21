@@ -33,7 +33,7 @@ const TrailCard = ({ post, handleEdit, handleDelete }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 w-80">
+    <div className="trail_card">
       {/* Main card content - clickable */}
       <div onClick={handleCardClick} className="cursor-pointer">
         {/* Trail Image */}
