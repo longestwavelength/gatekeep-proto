@@ -63,7 +63,7 @@ const TrailCard = ({ post, handleEdit, handleDelete }) => {
 
       {/* Creator info and actions - not clickable */}
       <div className="border-t border-gray-200 p-4">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between"> {/* edited out items-center */}
           <div className="flex items-center space-x-3">
             <Image 
               src={post.creator.image}
