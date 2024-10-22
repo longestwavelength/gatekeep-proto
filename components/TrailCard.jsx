@@ -95,7 +95,7 @@ const TrailCard = ({ post, handleEdit, handleDelete }) => {
               height={40}
               className="rounded-full object-cover flex-shrink-0"
             />{/*added flex-shrink-0 */}
-            <TooltipWrapper>
+            <TooltipWrapper text={post.creator.username}>
               <span 
                 className="font-medium text-gray-900 cursor-pointer hover:underline 
                 overflow-hidden overflow-ellipsis whitespace-nowrap"
