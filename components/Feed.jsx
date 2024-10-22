@@ -5,17 +5,29 @@ import TrailCard from "./TrailCard";
 
 const TrailCardList = ({ data, handleTagClick }) => {
   return (
-    <div className='mt-16 trail_layout'>
-       { data.map((post) => (
+    <div className="trail_container">
+      <div className='mt-16 trail_layout'>
+        {data.map((post) => (
           <TrailCard
             key={post._id}
             post={post}
             handleTagClick={handleTagClick}
           />
         ))}
-    </div>
+      </div>
+    </div> 
   );
 };
+/*Before there was no trail_container div - <div className='mt-16 trail_layout'>
+        {data.map((post) => (
+          <TrailCard
+            key={post._id}
+            post={post}
+            handleTagClick={handleTagClick}
+          />
+        ))}
+      </div> 
+  */
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -114,7 +126,7 @@ const Feed = () => {
 
   return (
     <section className='feed'>
-      <form className='relative w-full flex-center'>
+      <form className='relative w-full max-w-2xl flex-center'> {/*added max-w-2xl */}
         <input
           type='text'
           placeholder='Search for a trail'

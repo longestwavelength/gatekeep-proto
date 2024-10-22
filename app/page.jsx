@@ -16,7 +16,7 @@ const Home = () => {
                 Create new trails
                 <br className="max-md:hidden" />
             </h1>
-            <h1 className="orange_gradient head_text text-center">& Find a trail near you</h1>
+            <h1 className="orange_gradient head_text text-center">or Find a trail near you</h1>
             <p className="desc text-center">
                 Gatekeep is for finding, creating new trails & sharing trails with your friends.
             </p>
