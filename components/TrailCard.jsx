@@ -60,6 +60,41 @@ const TrailCard = ({ post, handleEdit, handleDelete }) => {
             layout="fill"
             objectFit="cover"
           />
+
+          {session?.user.id === post.creator._id && pathName === '/profile' && (
+            <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-50 group-hover:opacity-200 transition-opacity duration-200">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(post);
+                }}
+                className="p-2 bg-black rounded-full shadow-md hover:bg-gray-200 transition-colors"
+              >
+                <Image
+                  src="/assets/icons/edit.svg"
+                  alt="Edit"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(post);
+                }}
+                className="p-2 bg-black rounded-full shadow-md hover:bg-gray-200 transition-colors"
+              >
+                <Image
+                  src="/assets/icons/delete.svg"
+                  alt="Delete"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Trail Info */}
@@ -106,29 +141,7 @@ const TrailCard = ({ post, handleEdit, handleDelete }) => {
             </TooltipWrapper>
             
           </div>
-
-          {session?.user.id === post.creator._id && pathName === '/profile' && (
-            <div className="flex gap-2 flex-shrink-0">{/*rem space-x-2 added gap-2 flex-shrink-0 */}
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEdit(post);
-                }}
-                className="text-green-600 hover:text-green-700 font-medium"
-              >
-                Edit
-              </button>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(post);
-                }}
-                className="text-red-600 hover:text-red-700 font-medium"
-              >
-                Delete
-              </button>
-            </div>
-          )}
+          
         </div>
       </div>
     </div>
