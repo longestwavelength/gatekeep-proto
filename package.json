@@ -22,7 +22,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-leaflet": "^4.2.1",
-    "react-leaflet-draw": "^0.20.4"
+    "react-leaflet-draw": "^0.20.4",
+    "recharts": "^2.13.3"
   },
   "devDependencies": {
     "postcss": "^8",
