@@ -2,17 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import TrailMap from '@components/TrailMap';
 import GPXDownload from '@components/GPXDownload';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Bookmark, BookmarkCheck } from 'lucide-react';
 
 const TrailDetailPage = () => {
+  const { data: session } = useSession();
   const [trail, setTrail] = useState(null);
   const [elevationData, setElevationData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [elevationError, setElevationError] = useState(null);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const { id } = useParams();
 
   useEffect(() => {
@@ -82,6 +85,56 @@ const TrailDetailPage = () => {
     }));
   };
 
+  // method to handle bookmarking
+  const handleBookmark = async () => {
+    if (!session?.user) {
+      alert('Please log in to bookmark trails');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/trail/bookmark', {
+        method: 'POST',
+        body: JSON.stringify({
+          trailId: id,
+          userId: session.user.id
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setIsBookmarked(data.isBookmarked);
+      }
+    } catch (error) {
+      console.error('Error bookmarking trail:', error);
+      alert('Failed to bookmark trail');
+    }
+  };
+
+  // Check bookmark status when trail loads
+  useEffect(() => {
+    const checkBookmarkStatus = async () => {
+      if (trail && session?.user) {
+        try {
+          const response = await fetch(`/api/trail/bookmark?userId=${session.user.id}`);
+          const bookmarkedTrails = await response.json();
+          
+          setIsBookmarked(
+            bookmarkedTrails.some(bookmarkedTrail => bookmarkedTrail._id === id)
+          );
+        } catch (error) {
+          console.error('Error checking bookmark status:', error);
+        }
+      }
+    };
+
+    checkBookmarkStatus();
+  }, [trail, session, id]);
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[400px]">
@@ -113,6 +166,29 @@ const TrailDetailPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className='text-3xl font-bold'>
+          {trail.name}
+        </h1>
+        {session?.user && trail.creator && trail.creator._id.toString() !== session.user.id && (
+          <button 
+            onClick={handleBookmark}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+          >
+            {isBookmarked ? (
+              <>
+                <BookmarkCheck className="text-blue-600" />
+                <span>Saved</span>
+              </>
+            ) : (
+              <>
+                <Bookmark />
+                <span>Save</span>
+              </>
+            )}
+          </button>
+        )}
+      </div>
       {/* Show elevation error if present */}
       {elevationError && (
         <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-3">
@@ -121,7 +197,7 @@ const TrailDetailPage = () => {
         </div>
       )}
 
-      <h1 className="text-3xl font-bold mb-4">{trail.name}</h1>
+      {/* <h1 className="text-3xl font-bold mb-4">{trail.name}</h1> */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
         <p className="text-gray-600 mb-2">📍 {trail.location}</p>
         <p className="text-gray-600 mb-4">Difficulty: {trail.difficulty}</p>
