@@ -36,7 +36,7 @@ const TrailSchema = new Schema({
     tag: {
         type: String,
         required: [true, 'Tag is required.'],
-    }
+    },
     bookmarkedBy: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
