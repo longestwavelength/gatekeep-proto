@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import Profile from "@components/Profile";
 import TrailCard from "@components/TrailCard";
+import ProfileSectionDropdown from "@components/ProfileSectionDropdown";
 
 const MyProfile = () => {
   const router = useRouter();
@@ -13,6 +14,10 @@ const MyProfile = () => {
 
   const [myPosts, setMyPosts] = useState([]);
   const [bookmarkedTrails, setBookmarkedTrails] = useState([]);
+  const [completedTrails, setCompletedTrails] = useState([]);
+
+  const [currentSection, setCurrentSection] = useState('Created Trails');
+  const sectionOptions = ['Created Trails', 'Saved Trails', 'Completed Trails'];
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -29,9 +34,17 @@ const MyProfile = () => {
       setBookmarkedTrails(data);
     };
 
+    const fetchCompletedTrails = async () => {
+      const response = await fetch(`/api/trail/complete?userId=${session?.user.id}`);
+      const data = await response.json();
+
+      setCompletedTrails(data);
+    };
+
     if (session?.user.id){
       fetchPosts();
       fetchBookmarkedTrails();
+      fetchCompletedTrails();
     } 
   }, [session?.user.id]);
 
@@ -82,41 +95,108 @@ const MyProfile = () => {
     }
   };
 
+  const handleRemoveCompleted = async (trail) => {
+    try {
+      await fetch('/api/trail/complete', {
+        method: 'POST',
+        body: JSON.stringify({
+          trailId: trail._id,
+          userId: session?.user.id
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const filteredCompleted = completedTrails.filter(
+        (item) => item._id !== trail._id
+      );
+
+      setCompletedTrails(filteredCompleted);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const renderSection = () => {
+    switch(currentSection) {
+      case 'Created Trails':
+        return (
+          <Profile
+            name='Your'
+            desc='Welcome to your profile page...'
+            data={myPosts}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+          />
+        );
+      case 'Saved Trails':
+        return (
+          <section className='w-full mt-12'>
+            <h1 className='head_text text-left'>
+              <span className='blue_gradient'>Your Saved Trails</span>
+            </h1>
+
+            <div className="trail_container">
+              <div className='mt-10 trail_layout'>
+                {bookmarkedTrails.length > 0 ? (
+                  bookmarkedTrails.map((trail) => (
+                    <TrailCard
+                      key={trail._id}
+                      post={trail}
+                      handleDelete={() => handleRemoveBookmark(trail)}
+                    />
+                  ))
+                ) : (
+                  <p className="desc">No saved trails. Bookmark trails you want to try later!</p>
+                )}
+              </div>
+            </div>
+          </section>
+        );
+      case 'Completed Trails':
+        return (
+          <section className='w-full mt-12'>
+            <h1 className='head_text text-left'>
+              <span className='blue_gradient'>Completed Trails</span>
+            </h1>
+
+            <div className="trail_container">
+              <div className='mt-10 trail_layout'>
+                {completedTrails.length > 0 ? (
+                  completedTrails.map((trail) => (
+                    <TrailCard
+                      key={trail._id}
+                      post={trail}
+                      handleDelete={() => handleRemoveCompleted(trail)}
+                    />
+                  ))
+                ) : (
+                  <p className="desc">No completed trails. Start exploring and mark trails as completed!</p>
+                )}
+              </div>
+            </div>
+          </section>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div>
-      {/* Created Trails Section*/}
-      <Profile
-      name='Your'
-      desc='Welcome to your profile page...'
-      data={myPosts}
-      handleEdit={handleEdit}
-      handleDelete={handleDelete}
-    />
+      {/* Dropdown for section selection */}
+      <div className="flex justify-end p-4">
+        <ProfileSectionDropdown 
+          options={sectionOptions}
+          selectedOption={currentSection}
+          onOptionChange={setCurrentSection}
+        />
+      </div>
 
-    {/* Bookmarked Trails Section */}
-    <section className='w-full mt-12'>
-        <h1 className='head_text text-left'>
-          <span className='blue_gradient'>Your Saved Trails</span>
-        </h1>
-
-        <div className="trail_container">
-          <div className='mt-10 trail_layout'>
-            {bookmarkedTrails.length > 0 ? (
-              bookmarkedTrails.map((trail) => (
-                <TrailCard
-                  key={trail._id}
-                  post={trail}
-                  handleDelete={() => handleRemoveBookmark(trail)}
-                />
-              ))
-            ) : (
-              <p className="desc">No saved trails. Bookmark trails you want to try later!</p>
-            )}
-          </div>
-        </div>
-      </section>
+      {/* Dynamic section rendering */}
+      {renderSection()}
     </div>
-    
   );
 };
 

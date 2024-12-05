@@ -12,13 +12,25 @@ const handler = NextAuth({
     ],
     callbacks: {
         async session({ session }) {
-            const sessionUser = await User.findOne({
-                email: session.user.email
-            })
-    
-            session.user.id = sessionUser._id.toString();
-    
-            return session;
+            try {
+                // Ensure database connection
+                await connectToDB();
+
+                // Find the user in the database
+                const sessionUser = await User.findOne({
+                    email: session.user.email
+                });
+
+                // If user exists, update the session
+                if (sessionUser) {
+                    session.user.id = sessionUser._id.toString();
+                }
+
+                return session;
+            } catch (error) {
+                console.error("Session callback error:", error);
+                return session;
+            }
         },
         async signIn({ profile }) {
             try {
@@ -43,6 +55,13 @@ const handler = NextAuth({
                 return false;
             }
         }
+    },
+    
+    session: {
+        strategy: 'jwt',
+    },
+    jwt: {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
     }
     
 })

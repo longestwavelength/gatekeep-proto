@@ -40,6 +40,10 @@ const TrailSchema = new Schema({
     bookmarkedBy: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
+    }],
+    completedBy: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     }]
 });
 

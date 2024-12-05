@@ -6,7 +6,8 @@ import { useSession } from 'next-auth/react';
 import TrailMap from '@components/TrailMap';
 import GPXDownload from '@components/GPXDownload';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertCircle, Bookmark, BookmarkCheck } from 'lucide-react';
+import { AlertCircle, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2 } from 'lucide-react';
+
 
 const TrailDetailPage = () => {
   const { data: session } = useSession();
@@ -16,6 +17,8 @@ const TrailDetailPage = () => {
   const [error, setError] = useState(null);
   const [elevationError, setElevationError] = useState(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { id } = useParams();
 
   useEffect(() => {
@@ -115,24 +118,74 @@ const TrailDetailPage = () => {
     }
   };
 
-  // Check bookmark status when trail loads
+  // New method to handle marking trail as completed
+  const handleMarkCompleted = async () => {
+    if (!session?.user) {
+      alert('Please log in to mark trails as completed');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/trail/complete', {
+        method: 'POST',
+        body: JSON.stringify({
+          trailId: id,
+          userId: session.user.id
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setIsCompleted(data.isCompleted);
+      }
+    } catch (error) {
+      console.error('Error marking trail as completed:', error);
+      alert('Failed to mark trail as completed');
+    }
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleMenuAction = (action) => {
+    if (action === 'bookmark') {
+      handleBookmark();
+    } else if (action === 'complete') {
+      handleMarkCompleted();
+    }
+    setIsDropdownOpen(false);
+  };
+
+  // Check bookmark and completed status when trail loads
   useEffect(() => {
-    const checkBookmarkStatus = async () => {
+    const checkTrailStatus = async () => {
       if (trail && session?.user) {
         try {
-          const response = await fetch(`/api/trail/bookmark?userId=${session.user.id}`);
-          const bookmarkedTrails = await response.json();
+          const bookmarkResponse = await fetch(`/api/trail/bookmark?userId=${session.user.id}`);
+          const bookmarkedTrails = await bookmarkResponse.json();
+          
+          const completedResponse = await fetch(`/api/trail/complete?userId=${session.user.id}`);
+          const completedTrails = await completedResponse.json();
           
           setIsBookmarked(
             bookmarkedTrails.some(bookmarkedTrail => bookmarkedTrail._id === id)
           );
+          
+          setIsCompleted(
+            completedTrails.some(completedTrail => completedTrail._id === id)
+          );
         } catch (error) {
-          console.error('Error checking bookmark status:', error);
+          console.error('Error checking trail status:', error);
         }
       }
     };
 
-    checkBookmarkStatus();
+    checkTrailStatus();
   }, [trail, session, id]);
 
   if (isLoading) {
@@ -171,22 +224,47 @@ const TrailDetailPage = () => {
           {trail.name}
         </h1>
         {session?.user && trail.creator && trail.creator._id.toString() !== session.user.id && (
-          <button 
-            onClick={handleBookmark}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
-          >
-            {isBookmarked ? (
-              <>
-                <BookmarkCheck className="text-blue-600" />
-                <span>Saved</span>
-              </>
-            ) : (
-              <>
-                <Bookmark />
-                <span>Save</span>
-              </>
+          <div className="relative">
+            <button 
+              onClick={toggleDropdown} 
+              className="hover:bg-gray-100 p-2 rounded-full"
+            >
+              <MoreVertical />
+            </button>
+    
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-10">
+                <div 
+                  onClick={() => handleMenuAction('bookmark')} 
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                >
+                  {isBookmarked ? (
+                    <>
+                      <BookmarkCheck className="text-blue-600" /> Saved
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark /> Save
+                    </>
+                  )}
+                </div>
+                <div 
+                  onClick={() => handleMenuAction('complete')} 
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                >
+                  {isCompleted ? (
+                    <>
+                      <CheckCircle2 className="text-green-600" /> Completed
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 /> Mark as Completed
+                    </>
+                  )}
+                </div>
+              </div>
             )}
-          </button>
+        </div>
         )}
       </div>
       {/* Show elevation error if present */}

@@ -3,7 +3,7 @@ import Nav from '@components/Nav';
 import Provider from '@components/Provider';
 
 export const metadata = {
-    title: "Gatekeep",
+    title: "TrailsWay",
     description: 'Find new trails & add your own trails'
 }
 
