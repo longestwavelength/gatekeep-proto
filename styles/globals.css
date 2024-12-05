@@ -178,7 +178,7 @@
   @apply flex-1 rounded-lg border border-gray-300 
          bg-white/20 bg-clip-padding p-6 pb-4 
          backdrop-blur-lg backdrop-filter 
-         w-full h-fit;
+         md:w-[320px] w-full h-fit;
 }
 /*
 .trail_card {
