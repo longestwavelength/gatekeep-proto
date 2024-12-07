@@ -19,7 +19,7 @@ const Home = () => {
                 or Find a trail near you
             </h1>
             <p className="desc text-center">
-                Gatekeep is for finding, creating new trails & sharing trails with your friends.
+                TrailsWay is for finding, creating new trails & sharing trails with your friends.
             </p>
             
             {isClient && <Feed />}
