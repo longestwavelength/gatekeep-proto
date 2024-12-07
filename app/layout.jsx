@@ -4,7 +4,11 @@ import Provider from '@components/Provider';
 
 export const metadata = {
     title: "TrailsWay",
-    description: 'Find new trails & add your own trails'
+    description: 'Find new trails & add your own trails',
+    icons: {
+        icon: '/assets/images/gatekeep-logo.png',
+        shortcut: '/assets/images/gatekeep-logo.png',
+    }
 }
 
 const RootLayout = ({ children }) => {
