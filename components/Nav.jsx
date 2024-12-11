@@ -32,6 +32,12 @@ const Nav = () => {
       <div className="sm:flex hidden">
         {session?.user ? (
           <div className="flex gap-3 md:gap-5">
+            <Link href="https://trailsway.substack.com/" 
+            target="_blank"
+            className="black_btn">
+              faq
+            </Link>
+
             <Link href="/create-trail" className="black_btn">
               Create a Trail
             </Link>
@@ -76,6 +82,12 @@ const Nav = () => {
                   <Link href="/create-trail" 
                   className="dropdown_link" onClick={() => setToggleDropdown(false)}>
                     Create a Trail
+                  </Link>
+
+                  <Link href="https://trailsway.substack.com/" 
+                  className="dropdown_link" target="_blank"
+                  onClick={() => setToggleDropdown(false)}>
+                    faq
                   </Link>
 
                   <button type="button" 
