@@ -6,8 +6,8 @@ export const metadata = {
     title: "TrailsWay",
     description: 'Find new trails & add your own trails',
     icons: {
-        icon: '/assets/images/gatekeep-logo.png',
-        shortcut: '/assets/images/gatekeep-logo.png',
+        icon: '/assets/images/trailsway-logo.png',
+        shortcut: '/assets/images/trailsway-logo.png',
     }
 }
 
