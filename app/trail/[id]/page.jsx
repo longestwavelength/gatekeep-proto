@@ -7,6 +7,7 @@ import TrailMap from '@components/TrailMap';
 import GPXDownload from '@components/GPXDownload';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertCircle, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
 
 
 const TrailDetailPage = () => {
@@ -285,6 +286,27 @@ const TrailDetailPage = () => {
             #{trail.tag}
           </span>
         </div>
+        
+        {/* Image Gallery */}
+        {trail.images && trail.images.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-4">Trail Images</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {trail.images.map((imageUrl, index) => (
+                <div key={index} className="relative aspect-[4/3]">
+                  <Image
+                    src={imageUrl}
+                    alt={`Trail image ${index + 1}`}
+                    fill
+                    className="object-cover rounded-lg"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="h-96 mb-4">
           <TrailMap existingPath={trail.trailPath} readOnly={true} />
         </div>

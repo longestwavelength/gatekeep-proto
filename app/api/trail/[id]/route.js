@@ -1,5 +1,13 @@
 import { connectToDB } from "@utils/database";
 import Trail from "@models/trail";
+import { v2 as cloudinary } from 'cloudinary';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 //GET (read)
 
@@ -17,7 +25,7 @@ export const GET = async (request, { params }) => {
 
 //PATCH (update)
 export const PATCH = async (request, { params }) => {
-    const { name, difficulty, location, trailPath, description, tag } = await request.json();
+    const { name, difficulty, location, trailPath, description, tag, images } = await request.json();
 
     try {
         await connectToDB();
@@ -36,6 +44,7 @@ export const PATCH = async (request, { params }) => {
         existingTrail.trailPath = trailPath;
         existingTrail.description = description;
         existingTrail.tag = tag;
+        existingTrail.images = images;
 
         await existingTrail.save();
 
@@ -51,13 +60,30 @@ export const DELETE = async (request, { params }) => {
     try {
         await connectToDB();
 
-        const deletedTrail = await Trail.findByIdAndDelete(params.id);
+        // Find the trail first to get the image URLs
+        const trail = await Trail.findById(params.id);
         
-        if (!deletedTrail) {
+        if (!trail) {
             return new Response("Trail not found", { status: 404 });
         }
 
-        return new Response("Trail deleted successfully", { status: 200 });
+        // Delete images from Cloudinary if they exist
+        if (trail.images && trail.images.length > 0) {
+            for (const imageUrl of trail.images) {
+                // Extract public_id from the URL
+                const publicId = imageUrl.split('/').slice(-1)[0].split('.')[0];
+                try {
+                    await cloudinary.uploader.destroy(publicId);
+                } catch (cloudinaryError) {
+                    console.error("Error deleting image from Cloudinary:", cloudinaryError);
+                }
+            }
+        }
+
+        // Delete the trail from database
+        await Trail.findByIdAndDelete(params.id);
+
+        return new Response("Trail and associated images deleted successfully", { status: 200 });
     } catch (error) {
         console.error("Error deleting trail:", error);
         return new Response("Failed to delete Trail", { status: 500 });

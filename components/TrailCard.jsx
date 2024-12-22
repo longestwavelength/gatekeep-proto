@@ -55,10 +55,11 @@ const TrailCard = ({ post, handleEdit, handleDelete }) => {
         {/* Trail Image */}
         <div className="relative h-48 w-full">
           <Image 
-            src="/assets/images/gatekeep-logo.svg" // Replace with your default image path
+            src={post.images && post.images.length > 0 ? post.images[0] : "/assets/images/gatekeep-logo.svg"}
             alt={post.name}
-            layout="fill"
-            objectFit="cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
 
           {session?.user.id === post.creator._id && pathName === '/profile' && (

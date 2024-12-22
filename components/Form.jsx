@@ -1,12 +1,24 @@
 import Link from "next/link";
 import dynamic from 'next/dynamic';
+import Image from "next/image";
 
 const TrailMap = dynamic(() => import('./TrailMap'), {
     ssr: false,
     loading: () => <p>Loading map...</p>
 });
 
-const Form = ({ type, post, setPost, submitting, handleSubmit }) => {
+const Form = ({ 
+  type, 
+  post, 
+  setPost, 
+  submitting, 
+  handleSubmit,
+  imageFiles,
+  imagePreview,
+  handleImageUpload,
+  removeImage,
+  existingImages,
+  removeExistingImage }) => {
   const handlePathChange = (pathGeoJSON) => {
     console.log("Path changed in Form:", pathGeoJSON);
     if (pathGeoJSON && Array.isArray(pathGeoJSON.coordinates) && pathGeoJSON.coordinates.length > 0) {
@@ -31,6 +43,17 @@ const Form = ({ type, post, setPost, submitting, handleSubmit }) => {
     console.log("Submitting with trail path:", post.trailPath);
     handleSubmit(e);
   };
+
+  // Function to display selected files text
+  const getSelectedFilesText = () => {
+    const totalImages = (existingImages?.length || 0) + (imageFiles?.length || 0);
+    if (totalImages === 0) return "No files chosen";
+    return `${totalImages} file${totalImages === 1 ? '' : 's'} selected`;
+  };
+
+  // Calculate remaining upload slots
+  const remainingSlots = 3 - ((existingImages?.length || 0) + (imageFiles?.length || 0));
+  const canUploadMore = remainingSlots > 0;
 
   return (
     <section className='w-full max-w-full flex-start flex-col'>
@@ -122,6 +145,103 @@ const Form = ({ type, post, setPost, submitting, handleSubmit }) => {
             required
             className='form_input'
           />
+        </label>
+
+        <label>
+          <span className='font-satoshi font-semibold text-base text-gray-700'>
+            Trail Images
+            <span className='font-normal'> (Max 3 images)</span>
+          </span>
+          <div className="relative">
+            <input 
+              type="file" 
+              multiple 
+              accept="image/jpeg,image/png"
+              onChange={handleImageUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              id="file-input"
+              disabled={!canUploadMore}
+            />
+            <div className="form_input flex items-center">
+              <button 
+                type="button"
+                className={`px-4 py-2 text-white rounded-full text-sm font-semibold ${
+                  canUploadMore 
+                    ? 'bg-primary-orange hover:bg-orange-400' 
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+                onClick={() => canUploadMore && document.getElementById('file-input').click()}
+              >
+                Choose Files
+              </button>
+              <span className="ml-3 text-gray-600">
+                {getSelectedFilesText()}
+                {canUploadMore && (
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Can add {remainingSlots} more)
+                  </span>
+                )}
+              </span>
+            </div>
+          </div>
+          
+          {/* Existing Images */}
+          {existingImages && existingImages.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-600 mb-2">Existing Images:</p>
+              <div className="flex flex-wrap gap-2">
+                {existingImages.map((imageUrl, index) => (
+                  <div key={`existing-${index}`} className="relative">
+                    <Image 
+                      src={imageUrl} 
+                      alt={`Existing ${index + 1}`} 
+                      width={100} 
+                      height={100} 
+                      className="object-cover rounded-md"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => removeExistingImage(imageUrl)}
+                      className="absolute -top-2 -right-2 bg-primary-orange text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-orange-400"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* New Image Previews */}
+          {imagePreview.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-600 mb-2">New Images:</p>
+              <div className="flex flex-wrap gap-2">
+                {imagePreview.map((preview, index) => (
+                  <div key={`preview-${index}`} className="relative">
+                    <Image 
+                      src={preview} 
+                      alt={`Preview ${index + 1}`} 
+                      width={100} 
+                      height={100} 
+                      className="object-cover rounded-md"
+                    />
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeImage(index);
+                      }}
+                      className="absolute -top-2 -right-2 bg-primary-orange text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-orange-400"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </label>
 
         <div className='flex-end mx-3 mb-5 gap-4'>

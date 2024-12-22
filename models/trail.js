@@ -41,6 +41,10 @@ const TrailSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     }],
+    images: [{
+        type: String, // Store Cloudinary URLs
+        required: false
+    }],
     completedBy: [{
         type: Schema.Types.ObjectId,
         ref: 'User'

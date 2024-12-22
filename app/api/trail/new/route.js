@@ -2,7 +2,14 @@ import { connectToDB } from "@utils/database";
 import Trail from "@models/trail";
 
 export const POST = async (req) => {
-    const { userId, name, difficulty, location, trailPath, description, tag } = await req.json();
+    const { userId, 
+        name, 
+        difficulty, 
+        location, 
+        trailPath, 
+        description, 
+        tag,
+        images = [] } = await req.json();
 
     try {
 
@@ -25,7 +32,8 @@ export const POST = async (req) => {
                 coordinates: trailPath.coordinates
             },
             description,
-            tag
+            tag,
+            images: images
         });
         
         await newTrail.save();
