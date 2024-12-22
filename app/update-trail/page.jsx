@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Form from "@components/Form";
@@ -185,4 +185,9 @@ const UpdateTrail = () => {
   );
 };
 
-export default UpdateTrail;
+const PageWrapper = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <UpdateTrail />
+  </Suspense>
+);
+export default PageWrapper;
