@@ -19,33 +19,37 @@ const MyProfile = () => {
   const [currentSection, setCurrentSection] = useState('Created Trails');
   const sectionOptions = ['Created Trails', 'Saved Trails', 'Completed Trails'];
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      const response = await fetch(`/api/users/${session?.user.id}/posts`);
-      const data = await response.json();
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [postsRes, bookmarksRes, completedRes] = await Promise.all([
+          fetch(`/api/users/${session?.user.id}/posts`),
+          fetch(`/api/trail/bookmark?userId=${session?.user.id}`),
+          fetch(`/api/trail/complete?userId=${session?.user.id}`)
+        ]);
 
-      setMyPosts(data);
+        const [postsData, bookmarksData, completedData] = await Promise.all([
+          postsRes.json(),
+          bookmarksRes.json(),
+          completedRes.json()
+        ]);
+
+        setMyPosts(postsData);
+        setBookmarkedTrails(bookmarksData);
+        setCompletedTrails(completedData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    const fetchBookmarkedTrails = async () => {
-      const response = await fetch(`/api/trail/bookmark?userId=${session?.user.id}`);
-      const data = await response.json();
-
-      setBookmarkedTrails(data);
-    };
-
-    const fetchCompletedTrails = async () => {
-      const response = await fetch(`/api/trail/complete?userId=${session?.user.id}`);
-      const data = await response.json();
-
-      setCompletedTrails(data);
-    };
-
-    if (session?.user.id){
-      fetchPosts();
-      fetchBookmarkedTrails();
-      fetchCompletedTrails();
-    } 
+    if (session?.user.id) {
+      fetchData();
+    }
   }, [session?.user.id]);
 
   const handleEdit = (post) => {
@@ -119,6 +123,10 @@ const MyProfile = () => {
   };
 
   const renderSection = () => {
+    if (isLoading) {
+      return <p className="desc text-center mt-10">Loading...</p>;
+    }
+    
     switch(currentSection) {
       case 'Created Trails':
         return (
