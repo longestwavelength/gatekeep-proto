@@ -126,7 +126,7 @@ const MyProfile = () => {
     if (isLoading) {
       return <p className="desc text-center mt-10">Loading...</p>;
     }
-    
+
     switch(currentSection) {
       case 'Created Trails':
         return (
