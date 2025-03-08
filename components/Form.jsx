@@ -123,6 +123,8 @@ const Form = ({
         <label>
           <span className='font-satoshi font-semibold text-base text-gray-700'>
             Description
+            (You can see how to write a good description  
+            <Link href='https://trailsway.substack.com/p/coming-soon?r=4wjkdm' target="_blank" className="descrip_blog"> here</Link>)
           </span>
           <textarea
             value={post.description}
